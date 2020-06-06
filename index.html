@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    [v-cloak]{
+        display: none;
+    }
+</style>
+<link rel="stylesheet" href="index.css">
+<body>
+    <div id="app" v-cloak>
+        <!-- 顶部标题开始 -->
+        <section class="header">
+            <h1>代办事项</h1>
+        </section>
+        <!-- 顶部标题结束 -->
+        <!-- 中间部分开始 -->
+            <!-- 中间顶部开始 -->
+        <section class="main">
+            <section class="main-top">
+                <section :class="['main-left',{checked:check}]" @click.stop="checkbox">></section>
+                <section class="main-right">
+                    <input type="text" placeholder="输入点啥吧" v-model="inputVal" 
+                    @keyup.enter="saveNewTodo" @input="showTips" >
+                    <ul :class="['hidden',{show:inputting}]">
+                        <li v-for="tip,index in tips" @click.stop="addTodoFromTip(tip)" class="in">
+                            {{tip}}
+                        </li>
+                    </ul>
+                </section>
+            </section>
+            <!-- 中间顶部结束 -->
+            <!-- 中间底部开始 -->
+            <section class="bottom">
+                <section class="list-item" v-for="item,index in filterTodos">
+                    <section class="list-left">
+                    <input type="checkbox" v-model ="item.completed">
+                    </section>
+                    <!-- 双击编辑事件 -->
+                    <section @dblclick.stop="editTodo(index)" :class="['list-middle',{completed:item.completed,hidden:edte==index}]" >
+                        {{item.content}}
+                    </section>
+                    <!-- 待办事编辑输入框开始 -->
+                    <section :class="['list-middle','hidden',{show:edte==index}]">
+                         <input type="text" v-model="item.content"
+                         
+                          @keyup.enter="saveEditTodo(index)"
+                         
+                           @keyup.esc="cancelEditTodo(index)" 
+                           @blur="saveEditTodo(index)" 
+                          >
+                    </section>
+                    <!-- @keyup.esc取消编辑状态 -->
+                    <!-- @失去焦点状态 -->
+                    <!-- @keyup.enter回车松开事件 -->
+                    <!-- 待办事编辑输入框结束 -->
+                    <section class="list-right" @click="remove(index)">x</section>
+                </section> 
+            </section>
+            <!-- 中间底部结束 -->
+        </section>
+        <!-- 底部导航栏开始 -->
+        <section class="nav-btm">
+            <section class="nav-left" >剩余{{remaining.length}}项</section>
+            <section class="nav-middle">
+                <a href="#/all":class="['all',{active:visibility=='all'}]">ALL</a>
+                <a href="#/jh":class="['jh',{active:visibility=='jh'}]">激活</a>
+                <a href="#/wc":class="['wc',{active:visibility=='wc'}]">完成</a>
+            </section>
+           <section class="nav-right" @click.stop="claer">清除已完成</section>
+        </section>
+        <!-- 底部导航栏结束 -->
+    <!-- 中间部分结束 -->
+    </div>
+</body>
+<script src="https://cn.vuejs.org/js/vue.js"></script>
+<script>
+    let storageKey = "mytodos"
+    storageFunc = {
+        // 获取数据
+        fetch:function(){
+            return JSON.parse(localStorage.getItem(storageKey)||'[]')
+        },
+        save:function(todos){
+            localStorage.setItem(storageKey,JSON.stringify(todos))  
+        }
+    }
+    let vm = new Vue({
+        el:"#app",
+        watch: {
+            todos:{
+                handler(todos){
+                    storageFunc.save(todos)
+                },
+                deep:true
+            }
+        },
+        computed: {
+            tips:function(){
+                let tips = [];//存下拉框提升
+                this.todos.forEach((v,i)=>{
+                    if (v.content.indexOf(this.inputVal) !=-1) {
+                        tips.push(v.content)
+                    }
+                })
+                return tips
+            },
+            filterTodos:function(){
+                if (this.visibility=="all") {
+                    return this.todos
+                }else if(this.visibility== "active"){
+
+                    return this.todos.filter(function(v,i){
+                        return !v.completed //激活项
+                    })
+                }else{
+
+                    return this.todos.filter(function(v,i){
+                        return v.completed //完成项目
+                    })
+                }
+            },
+            // 全选
+            check:function(){
+                let check= true //默认全选
+                this.todos.map(function(v,i){
+                    if(!v.completed){
+                       check = false
+                    }
+                })
+                return check
+            },
+            // 剩余几项
+            remaining:function(){
+                let remaining=this.todos.filter((v,i)=>{
+                    // 未完成的项
+                    return !v.completed
+                })
+                return remaining
+            }
+        },
+        data:{
+           edte:-1,
+           inputting:false,
+           visibility:"all",//all 全部active激活项
+           inputVal:"",//
+           allCheckLabel:false,
+            cache:"",//编辑缓存的内容
+            todos:storageFunc.fetch(),
+            
+            // todos:[{
+            //     id:"12333444",
+            //     content:"理解vuex",
+            //     completed:false
+
+            // },{
+            //     id:"12333444",
+            //     content:"理解mutations",
+            //     completed:false
+            // }] 
+        },
+            methods:{
+                addTodoFromTip:function(tip){
+                    console.log(1)
+                    this.todos.push({
+                        content:tip,
+                        id:Date.now(),
+                        completed:false
+                    })
+                    this.inputting = false;
+                         
+                
+                },
+                // x删除事件
+                remove: function(index){
+                    this.todos.splice(index,1)
+                },
+
+                // 下拉框显示
+                showTips:function(){
+                    // 表示正在输入
+                    this.inputting = true 
+                },
+                // 清除已完成
+              claer:function(index){
+                 let fnish = this.todos.filter(function(v,i){
+                    return !v.completed
+                    })
+                    this.todos = fnish
+              },
+                // 保存编辑项
+                cancelEditTodo:function(index){
+                    this.todos[index].content = this.cache
+                    this.cache=""//清空编辑内容的缓存
+                    this.edte=-1
+                },
+                saveEditTodo:function(index){
+                    if(!this.todos[index].content){
+                        this.todos.splice(index,1)
+                    }
+                    this.edte=-1//取消编辑状态
+                },
+            // 编辑待办事项
+                editTodo:function(index){
+                    // 保留编辑之前的值
+                    this.cache = this.todos[index].content
+                    this.edte = index
+                },
+                // 全选
+            checkbox:function(){
+                this.todos.forEach((v,i) => {
+                    v.completed = !this.allCheckLabel
+                });
+                 this.allCheckLabel = !this.allCheckLabel
+            },
+                // input 框添加和提示
+            saveNewTodo:function(){
+              console.log(this.inputVal)
+              if(!this.inputVal.trim()){
+                  alert("输入不为空")
+                  return
+              }
+              this.todos.push({
+                  id:Date.now(),
+                  content:this.inputVal,
+                  completed:false
+              })
+              this.inputVal=""
+            }
+        },
+    })
+    function handlerHashChange(){
+        window.location.hash = ""
+        vm.visibility = "all"
+    }
+    window.addEventListener("hashchange",function(){
+       
+            console.log(window.location.hash)
+            let visibility =window.location.hash.replace("#/","")
+          if(!visibility)
+          vm.visibility="all"
+          else
+          vm.visibility = visibility  
+    })
+    handlerHashChange()
+</script>
+</html>

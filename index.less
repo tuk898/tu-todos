@@ -1,0 +1,156 @@
+#app {
+
+    width: 1000px;
+     margin: 0 auto;
+     border: 1px solid #ddd;
+     .hidden{
+        display: none;
+     }
+     .show{
+         display: block;
+     }
+     
+    section.header { 
+       
+      h1 {
+        background-image: linear-gradient(135deg,blue,yellow);
+  -webkit-background-clip:text;
+  color: transparent;
+        font-size: 40px;
+       text-align: center;
+       
+      }
+    }
+  
+    section.main {
+    
+      section.main-top {
+          display: flex;
+           
+           position: relative;
+        section.main-left {
+            transform: rotate(90deg);
+           text-align: center;
+            flex: 1;
+            
+        }
+       
+        .checked{
+            color: red;
+        }
+        section.main-right {
+            
+            // line-height: 100px;
+            flex: 9;
+              padding-left: 20px;
+              
+          input {
+             
+            height: 30px;
+            width: 100%;
+          }
+          ul{
+            list-style: none;
+            position: absolute;
+            z-index: 11;
+            li{
+              height: 30px;
+              width: 800px;
+              background-color: red;
+              line-height: 30px;
+              color: black;
+              border-bottom: 1px solid black;
+            }
+          }
+          
+        }
+      }
+  
+     
+  
+      section.bottom {
+        border-bottom: 1px solid #ddd;
+        position: relative;
+        section.list-item {
+            height: 60px;
+            display: flex;
+            
+          section.list-left {
+            margin-left: 5px;
+            line-height: 60px;
+            text-align: center;
+            flex: 1;
+            input {
+           
+            }
+           
+          }
+          
+  
+          section.list-middle {
+            line-height: 60px;
+            text-align: center;
+            margin-left: 50px;
+            flex: 8;
+             
+          }
+          section.list-right{
+           flex: 1;
+           text-align: center;
+           line-height: 60px;
+            display: none;
+          }
+         
+          .completed{
+              color: #ddd;
+              text-decoration: line-through;
+          }
+        }
+        section.list-item:hover{
+            .list-right{
+                display: block;
+            }
+          }
+      }
+    }
+  
+    section.nav-btm {
+        height: 50px;
+        display: flex;
+        
+      section.nav-left {
+        text-align: center;
+        line-height: 50px;
+        flex: 1;
+      }
+  
+      section.nav-middle {
+          justify-content: center;
+          align-items: center;
+          display: flex;
+          flex: 9;
+          color: blue;
+          .active{
+            border: 1px solid red;
+          }
+        .all {
+             margin-left: 10px;
+
+        }
+        
+        .jh {
+            margin-left: 10px;
+        }
+        
+        .wc {
+            margin-left: 10px;
+        }
+      }
+  
+      section.nav-right {
+        text-align: center;
+        line-height: 50px;
+        flex: 1;
+      }
+    }
+  }
